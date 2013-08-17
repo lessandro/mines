@@ -24,18 +24,22 @@ draw-shape = (x, y, scale, shape) ->
     draw-contour shape.contour
     ctx.restore!
 
-steps = [
-    -> square
-    -> concat-shape it, square
-    -> concat-shape it, square
-    -> concat-shape it, triangle
-    -> rotate-shape it
-    -> concat-shape it, triangle
-    -> rotate-shape it
-    -> concat-shape it, triangle
-    -> rotate-shape it
-    -> concat-shape it, (translate-shape triangle, [1 0])
-]
+steps = (->
+    tri2 = rotate-shape rotate-shape triangle
+    [
+        -> square
+        -> concat-shapes it, square
+        -> concat-shapes it, square
+        -> concat-shapes it, triangle
+        -> rotate-shape it
+        -> concat-shapes it, triangle
+        -> rotate-shape it
+        -> concat-shapes it, triangle
+        -> rotate-shape it
+        -> concat-shapes it, translate-shape triangle, [1 0]
+        -> join-shapes it, translate-shape triangle, [2 2]
+        -> join-shapes it, translate-shape tri2, [1 2]
+    ])()
 
 for step in steps
     crazy = step crazy

@@ -4,7 +4,7 @@
 [N, W, S, E] = [1 2 4 8]
 
 # list equality
-aeq = (a, b) -> a >= b and a <= b
+eq = (a, b) -> a >= b and a <= b
 
 # list binary or
 bor = foldr (.|.), 0
@@ -72,11 +72,20 @@ translate-contour = (contour, point) -> map (psum point), contour
 find-splice-point = (contour1, contour2) ->
     for i from 0 to contour1.length-2
         for j from 0 to contour2.length-2
-            if aeq contour2[j], contour1[i + 1]
-                if aeq contour2[j+1], contour1[i]
+            if contour2[j] `eq` contour1[i + 1]
+                if contour2[j+1] `eq` contour1[i]
                     return [i, j]
 
     return null
+
+trim-contour = (contour) ->
+    ret = take 2, contour
+    for i from 2 to contour.length-1
+        if ret[ret.length-2] `eq` contour[i]
+            ret.pop()
+        else
+            ret.push(contour[i])
+    return ret
 
 join-contours = (contour1, contour2) ->
     splice-point = find-splice-point contour1, contour2
@@ -94,9 +103,9 @@ join-contours = (contour1, contour2) ->
     contour ++= slice 1, j, contour2    # w
     contour ++= drop i + 1, contour1    # d e a
 
-    return contour
+    return trim-contour contour
 
-join-shape = (shape1, shape2) ->
+join-shapes = (shape1, shape2) ->
     size = pmax shape1.size, shape2.size
     size: size
     edges: mzip (.|.), (msize size, shape1.edges), (msize size, shape2.edges)
@@ -109,5 +118,5 @@ translate-shape = (shape, delta) ->
     contour: translate-contour shape.contour, delta
 
 # add a new shape on the bottom
-concat-shape = (shape1, shape2) ->
-    join-shape shape1, (translate-shape shape2, [0, shape1.size[1]])
+concat-shapes = (shape1, shape2) ->
+    join-shapes shape1, (translate-shape shape2, [0, shape1.size[1]])
