@@ -52,12 +52,12 @@ prot = ([x, y]) -> [y, -x]
 square =
     size: [1, 1]
     edges: [[bor [N, W, S, E]]]
-    contour: [NW, SW, SE, NE, NW]
+    contour: [NW, SW, SE, NE]
 
 triangle = # |/
     size: [1, 1]
     edges: [[bor [N, W]]]
-    contour: [NW, SW, NE, NW]
+    contour: [NW, SW, NE]
 
 rotate-edge = (edge) -> ((edge .<<. 1) .|. (edge .>>. 3)) .&. 0xf
 
@@ -70,40 +70,38 @@ rotate-shape = (shape) ->
 translate-contour = (contour, point) -> map (psum point), contour
 
 find-splice-point = (contour1, contour2) ->
-    for i from 0 to contour1.length-2
-        for j from 0 to contour2.length-2
-            if contour2[j] `eq` contour1[i + 1]
-                if contour2[j+1] `eq` contour1[i]
-                    return [i, j]
-
+    for i from 0 to contour1.length - 1
+        for j from 0 to contour2.length - 1
+            if contour1[i] `eq` contour2[j]
+                return [i, j]
     return null
 
-trim-contour = (contour) ->
-    ret = take 2, contour
-    for i from 2 to contour.length-1
-        if ret[ret.length-2] `eq` contour[i]
-            ret.pop()
+trim-contour = (contour) !->
+    i = 0
+    while i < contour.length
+        prev = (i - 1) %% contour.length
+        next = (i + 1) %% contour.length
+        if contour[prev] `eq` contour[next]
+            contour.splice(i, 1)
+            contour.splice(i %% contour.length, 1)
         else
-            ret.push(contour[i])
-    return ret
+            i++
 
 join-contours = (contour1, contour2) ->
     splice-point = find-splice-point contour1, contour2
-    if not splice-point
-        throw "contours dont share an edge"
+    if splice-point == null
+        throw "contours dont share a vertex"
 
     [i, j] = splice-point
 
-    #   a b c d e a        i = 2
-    # + z w d c x z        j = 2
-    # = a b c x z w d e a
+    contour = take i, contour1
+    contour ++= drop j, contour2
+    contour ++= take j, contour2
+    contour ++= drop i, contour1
 
-    contour = take i, contour1          # a b
-    contour ++= drop j + 1, contour2    # c x z
-    contour ++= slice 1, j, contour2    # w
-    contour ++= drop i + 1, contour1    # d e a
+    trim-contour contour
 
-    return trim-contour contour
+    return contour
 
 join-shapes = (shape1, shape2) ->
     size = pmax shape1.size, shape2.size

@@ -1,3 +1,5 @@
+{apply, last} = require 'prelude-ls'
+
 canvas = document.getElementById 'canvas'
 ctx = canvas.getContext '2d'
 
@@ -11,9 +13,9 @@ reset!
 
 draw-contour = (contour) ->
     ctx.beginPath!
-    ctx.moveTo contour[0][0], contour[0][1]
-    for i from 1 to contour.length-1
-        ctx.lineTo contour[i][0], contour[i][1]
+    (-> ctx.moveTo it[0], it[1]) last contour
+    for [x, y] in contour
+        ctx.lineTo x + Math.random! / 3, y + Math.random! / 3
     ctx.stroke!
 
 draw-shape = (x, y, scale, shape) ->
@@ -29,19 +31,18 @@ steps = (->
     [
         -> square
         -> concat-shapes it, square
-        -> concat-shapes it, square
         -> concat-shapes it, triangle
         -> rotate-shape it
         -> concat-shapes it, triangle
         -> rotate-shape it
         -> concat-shapes it, triangle
         -> rotate-shape it
-        -> concat-shapes it, translate-shape triangle, [1 0]
-        -> join-shapes it, translate-shape triangle, [2 2]
+        -> concat-shapes it, tri2
         -> join-shapes it, translate-shape tri2, [1 2]
+        -> join-shapes it, translate-shape triangle, [1 2]
     ])()
 
 for step in steps
     crazy = step crazy
-    draw-shape 50, 50, 20, crazy
+    draw-shape 30, 30, 20, crazy
     ctx.translate (crazy.size[0]+1) * 20, 0
