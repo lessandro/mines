@@ -90,7 +90,7 @@ trim-contour = (contour) !->
         prev = (i - 1) %% contour.length
         next = (i + 1) %% contour.length
         if contour[prev] `eq` contour[next]
-            contour.splice(i, 1)
+            contour.splice(i %% contour.length, 1)
             contour.splice(i %% contour.length, 1)
             i--
         else
