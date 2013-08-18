@@ -1,6 +1,6 @@
 {map, foldr, max, take, drop, slice, reverse} = require 'prelude-ls'
 
-[NW, SW, SE, NE] = [[0 0] [0 1] [1 1] [1 0]]
+[NW, SW, SE, NE, C] = [[0 0] [0 1] [1 1] [1 0] [0.5, 0.5]]
 edge-list = [N, W, S, E] = [1 2 4 8]
 
 # list equality
@@ -130,6 +130,11 @@ triangle = # |/
     edges: [[bor [N, W]]]
     contour: [NW, SW, NE]
 
+triangle2 = #\/
+    size: [1, 1]
+    edges: [[N]]
+    contour: [NW, C, NE]
+
 # square + pointy rectangles
 
 shapes = []
@@ -138,7 +143,8 @@ make-shapes = !->
     for i to 4
         shapes.push square
 
-    for t in [triangle, rotate-shape rotate-shape rotate-shape triangle]
+    inverted = rotate-shape rotate-shape rotate-shape triangle
+    for t in [triangle, inverted]
         shapes.push (pointy = concat-shapes square, t)
         shapes.push (pointy = rotate-shape pointy)
         shapes.push (pointy = rotate-shape pointy)

@@ -1,9 +1,10 @@
 {apply} = require 'prelude-ls'
 
-[w, h] = [10 10]
+[w, h] = [16 16]
 edge-map = []
 tiles = []
 iterations = 0
+size = 40
 
 reset-grid = ->
     edge-map := [[[null for k to edge-list.length] for i to w-1] for j to h-1]
@@ -82,7 +83,7 @@ try-place-tile = (row, col, edge) ->
         if !shape-fits(row, col, shape)
             continue
 
-        tile = {col:col, row:row, shape:shape}
+        tile = {col:col, row:row, shape:shape, color:random-color!, selected:0}
         tiles.push tile
         place-tile tile
 
@@ -95,26 +96,44 @@ try-place-tile = (row, col, edge) ->
     return false
 
 make-grid = ->
-    while true
-        try
-            reset-grid!
-            iterations := w * h * w * h
-            console.time 'make-grid'
-            try-place-tile 0, 0, 1
-            return true
-        catch
-            1
-        finally
-            console.timeEnd 'make-grid'
+    try
+        reset-grid!
+        iterations := 10000
+        try-place-tile 0, 0, 1
+    catch
+        window.set-timeout make-grid, 10
+        return
 
-draw-grid = ->
-    size = 40
-    for tile in tiles
-        draw-shape tile.col * size, tile.row * size, size, tile.shape
-
-update-grid = !->
-    make-grid!
     draw-grid!
 
-window.addEventListener 'click', update-grid, false
-update-grid!
+draw-grid = ->
+    for tile in tiles
+        draw-tile tile, size
+
+make-grid!
+
+selected = null
+
+move = !->
+    x = it.clientX
+    y = it.clientY
+
+    tx = (x / size) .|. 0
+    ty = (y / size) .|. 0
+    if tx >= w or ty >= h
+        return
+
+    dx = x - tx * size - size / 2
+    dy = y - ty * size - size / 2
+
+    edge = [N, W, E, S][(dy > dx) * 1 + (dx > -dy) * 2]
+
+    tile = edge-map[ty][tx][edge]
+    if tile != selected
+        if selected
+            selected.selected = 0
+        tile.selected = 1
+        selected := tile
+        draw-grid!
+
+window.addEventListener 'mousemove', move, false
