@@ -15,14 +15,14 @@ draw-contour = (contour) ->
     ctx.beginPath!
     (-> ctx.moveTo it[0], it[1]) last contour
     for [x, y] in contour
-        ctx.lineTo x + Math.random! / 3, y + Math.random! / 3
-    ctx.stroke!
+        ctx.lineTo x, y
+    ctx.fill!
 
 draw-shape = (x, y, scale, shape) ->
     ctx.save!
     ctx.translate x, y
     ctx.scale scale, scale
-    ctx.lineWidth = 1.0/scale
+    ctx.fillStyle = '#' + ((Math.random! * 0xffffff).|.0).toString 16
     draw-contour shape.contour
     ctx.restore!
 
