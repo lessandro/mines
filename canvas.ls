@@ -28,10 +28,12 @@ draw-tile = (tile, size) ->
     ctx.fillStyle = '#cccccc'
     if tile.marked
         ctx.fillStyle = 'pink'
-    if tile.exposed
-        ctx.fillStyle = 'white'
     if tile.highlighted
         ctx.fillStyle = 'cyan'
+    if tile.exposed
+        ctx.fillStyle = 'white'
+        if tile.bomb
+            ctx.fillStyle = 'pink'
     draw-contour tile.shape.contour
     if !tile.exposed or tile.text
         ctx.fill!
@@ -49,6 +51,11 @@ draw-grid = !->
     ctx.clearRect 0, 0, canvas.width, canvas.height
     for tile in tiles
         draw-tile tile, tile-size
+
+    if state == 0
+        remaining_div.inner-text = "Bombs left: #bombs"
+    else
+        remaining_div.inner-text = "Game over!"
 
 get-tile-at = (x, y) ->
     if x < 0 or y < 0

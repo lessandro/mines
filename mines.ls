@@ -1,15 +1,19 @@
 {take,sum} = require 'prelude-ls'
 
 state = 0
+unexposed = 0
+bombs = 0
 
 init-mines = !->
     <- make-grid!
 
     state := 0
+    bombs := 35
+    unexposed := tiles.length - bombs
 
     pos = [1 to tiles.length-1]
     shuffle pos
-    pos = take 35 pos
+    pos = take bombs, pos
     for n in pos
         tiles[n].bomb = 1
 
@@ -46,7 +50,14 @@ expose = (tile) !->
     tile.exposed = true
 
     if tile.bomb
-        setTimeout (-> window.alert 'you lost!'), 200
+        state := 1
+        for tile in tiles
+            if tile.bomb
+                tile.exposed = true
+
+    unexposed := unexposed - 1
+    if unexposed == 0
+        setTimeout (-> window.alert 'you win!'), 200
         state := 1
 
     if tile.text
@@ -56,7 +67,13 @@ expose = (tile) !->
         expose neighbor
 
 mark = (tile) !->
-    tile.marked = if tile.marked then false else true
+    if tile.exposed
+        for neighbor in tile.neighbors
+            if !neighbor.marked
+                expose neighbor
+    else
+        tile.marked = if tile.marked then false else true
+        bombs := bombs + (if tile.marked then -1 else 1)
 
 click = (tile, ev) !->
     if state == 0
@@ -68,7 +85,7 @@ click = (tile, ev) !->
         else
             expose tile
 
-        move null
+        highlighted.highlighted = false
         draw-grid!
     else
         init-mines!
