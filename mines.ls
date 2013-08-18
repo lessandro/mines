@@ -62,13 +62,13 @@ click = (tile, ev) !->
     if state == 0
         right = ev.button == 2 or ev.which == 3
         keys = ev.ctrl-key or ev.shift-key or ev.meta-key or ev.alt-key
+
         if right or keys
             mark tile
         else
             expose tile
 
         move null
-
         draw-grid!
     else
         init-mines!
