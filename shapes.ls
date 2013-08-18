@@ -1,7 +1,7 @@
 {map, foldr, max, take, drop, slice, reverse} = require 'prelude-ls'
 
 [NW, SW, SE, NE] = [[0 0] [0 1] [1 1] [1 0]]
-[N, W, S, E] = [1 2 4 8]
+edge-list = [N, W, S, E] = [1 2 4 8]
 
 # list equality
 eq = (a, b) -> a >= b and a <= b
@@ -48,16 +48,6 @@ pmax = ([x1, y1], [x2, y2]) -> [(max x1, x2), (max y1, y2)]
 
 # point rotate, ccw
 prot = ([x, y]) -> [y, -x]
-
-square =
-    size: [1, 1]
-    edges: [[bor [N, W, S, E]]]
-    contour: [NW, SW, SE, NE]
-
-triangle = # |/
-    size: [1, 1]
-    edges: [[bor [N, W]]]
-    contour: [NW, SW, NE]
 
 rotate-edge = (edge) -> ((edge .<<. 1) .|. (edge .>>. 3)) .&. 0xf
 
@@ -127,3 +117,31 @@ translate-shape = (shape, delta) ->
 # add a new shape on the bottom
 concat-shapes = (shape1, shape2) ->
     join-shapes shape1, (translate-shape shape2, [0, shape1.size[1]])
+
+# some basic shapes
+
+square =
+    size: [1, 1]
+    edges: [[bor [N, W, S, E]]]
+    contour: [NW, SW, SE, NE]
+
+triangle = # |/
+    size: [1, 1]
+    edges: [[bor [N, W]]]
+    contour: [NW, SW, NE]
+
+# square + pointy rectangles
+
+shapes = []
+
+make-shapes = !->
+    for i to 4
+        shapes.push square
+
+    for t in [triangle, rotate-shape rotate-shape rotate-shape triangle]
+        shapes.push (pointy = concat-shapes square, t)
+        shapes.push (pointy = rotate-shape pointy)
+        shapes.push (pointy = rotate-shape pointy)
+        shapes.push (pointy = rotate-shape pointy)
+
+make-shapes!

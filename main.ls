@@ -1,4 +1,4 @@
-{apply, last} = require 'prelude-ls'
+{last} = require 'prelude-ls'
 
 canvas = document.getElementById 'canvas'
 ctx = canvas.getContext '2d'
@@ -18,31 +18,14 @@ draw-contour = (contour) ->
         ctx.lineTo x, y
     ctx.fill!
 
+randn = (n) -> ((Math.random! * 0x7fffffff) .|. 0) %% n
+
+random-color = -> '#' + [(3 + randn 13).to-string 16 for i to 5] * ''
+
 draw-shape = (x, y, scale, shape) ->
     ctx.save!
     ctx.translate x, y
     ctx.scale scale, scale
-    ctx.fillStyle = '#' + ((Math.random! * 0xffffff).|.0).toString 16
+    ctx.fillStyle = random-color()
     draw-contour shape.contour
     ctx.restore!
-
-steps = (->
-    tri2 = rotate-shape rotate-shape triangle
-    [
-        -> square
-        -> concat-shapes it, square
-        -> concat-shapes it, triangle
-        -> rotate-shape it
-        -> concat-shapes it, triangle
-        -> rotate-shape it
-        -> concat-shapes it, triangle
-        -> rotate-shape it
-        -> concat-shapes it, tri2
-        -> join-shapes it, translate-shape tri2, [1 2]
-        -> join-shapes it, translate-shape triangle, [1 2]
-    ])()
-
-for step in steps
-    crazy = step crazy
-    draw-shape 30, 30, 20, crazy
-    ctx.translate (crazy.size[0]+1) * 20, 0
