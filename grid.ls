@@ -1,10 +1,9 @@
 {apply, unique, filter} = require 'prelude-ls'
 
-[w, h] = [16 16]
+[w, h] = [20 16]
 edge-map = []
 tiles = []
 iterations = 0
-size = 40
 
 reset-grid = ->
     edge-map := [[[] for i to w - 1] for j to h - 1]
@@ -89,10 +88,7 @@ try-place-tile = (row, col, edge) ->
             col: col,
             row: row,
             shape: shape,
-            color: random-color!,
-            selected: 0,
             n: tiles.length
-            center: [0, 0]
 
         tiles.push tile
         place-tile tile
@@ -123,58 +119,13 @@ build-graph = !->
         neighbors = filter (!= tile.n), unique neighbors
         tile.neighbors = [tiles[n] for n in neighbors]
 
-make-grid = !->
+make-grid = (cb) !->
     reset-grid!
     try
         try-place-tile 0, 0, 1
     catch
-        window.set-timeout make-grid, 10
+        window.set-timeout (-> make-grid cb), 10
         return
+
     build-graph!
-    draw-grid!
-
-draw-grid = !->
-    for tile in tiles
-        draw-tile tile, size
-
-make-grid!
-
-selected = null
-
-get-tile-at = (x, y) ->
-    if x < 0 or y < 0
-        return null
-
-    tx = (x / size) .|. 0
-    ty = (y / size) .|. 0
-
-    if tx >= w or ty >= h
-        return null
-
-    dx = x - tx * size - size / 2
-    dy = y - ty * size - size / 2
-
-    edge = [N, W, E, S][(dy > dx) * 1 + (dx > -dy) * 2]
-
-    return edge-map[ty][tx][edge]
-
-move = !->
-    tile = get-tile-at it.clientX, it.clientY
-
-    if !tile
-        return
-
-    if tile != selected
-        if selected
-            selected.selected = 0
-            for neighbor in selected.neighbors
-                neighbor.selected = 0
-
-        tile.selected = 1
-        for neighbor in tile.neighbors
-            neighbor.selected = 2
-
-        selected := tile
-        draw-grid!
-
-window.addEventListener 'mousemove', move, false
+    cb!
