@@ -70,12 +70,20 @@ rotate-shape = (shape) ->
 translate-contour = (contour, point) -> map (psum point), contour
 
 find-splice-point = (contour1, contour2) ->
+    point = null
     for i from 0 to contour1.length - 1
         for j from 0 to contour2.length - 1
             if contour1[i] `eq` contour2[j]
-                return [i, j]
-    return null
+                # found a shared vetex
+                point = [i, j]
+                # prefer an edge match
+                prev = (i - 1) %% contour1.length
+                next = (j + 1) %% contour2.length
+                if contour1[prev] `eq` contour2[next]
+                    return point
+    return point
 
+# O(n^2), but can be made O(n)
 trim-contour = (contour) !->
     i = 0
     while i < contour.length
@@ -84,6 +92,7 @@ trim-contour = (contour) !->
         if contour[prev] `eq` contour[next]
             contour.splice(i, 1)
             contour.splice(i %% contour.length, 1)
+            i--
         else
             i++
 
