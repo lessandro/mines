@@ -139,6 +139,12 @@ triangle2 = #\/
 
 shapes = []
 
+find-center = (shape) ->
+    for j to shape.size[1] - 1
+        for i to shape.size[0] - 1
+            if shape.edges[j][i] == 15
+                return [i, j]
+
 make-shapes = !->
     for i to 4
         shapes.push square
@@ -149,5 +155,8 @@ make-shapes = !->
         shapes.push (pointy = rotate-shape pointy)
         shapes.push (pointy = rotate-shape pointy)
         shapes.push (pointy = rotate-shape pointy)
+
+    for shape in shapes
+        shape.center = find-center shape
 
 make-shapes!

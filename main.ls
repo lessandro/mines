@@ -23,11 +23,13 @@ random-color = -> '#' + [(3 + randn 13).to-string 16 for i to 5] * ''
 draw-tile = (tile, size) ->
     ctx.save!
     ctx.translate tile.col * size, tile.row * size
+    ctx.save!
     ctx.scale size, size
     ctx.lineWidth = 1.0/size
-    ctx.fillStyle = tile.color
+    ctx.fillStyle = ['#ffffff', '#000000', tile.color][tile.selected]
     draw-contour tile.shape.contour
-    if tile.selected
-        ctx.fill!
+    ctx.fill!
     ctx.stroke!
+    ctx.restore!
+    ctx.fillText tile.neighbors.length.to-string!, tile.shape.center[0]*size + size/2, tile.shape.center[1]*size + size/2
     ctx.restore!
