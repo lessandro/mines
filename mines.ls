@@ -26,6 +26,7 @@ init-mines = !->
             continue
 
         n = [1 for neighbor in tile.neighbors when neighbor.bomb].length
+        tile.num = n
         tile.text = if n > 0 then n.to-string! else ''
 
     draw-grid!
@@ -68,9 +69,11 @@ expose = (tile) !->
 
 mark = (tile) !->
     if tile.exposed
-        for neighbor in tile.neighbors
-            if !neighbor.marked
-                expose neighbor
+        marks = [1 for neighbor in tile.neighbors when neighbor.marked].length
+        if marks == tile.num
+            for neighbor in tile.neighbors
+                if !neighbor.marked
+                    expose neighbor
     else
         tile.marked = if tile.marked then false else true
         bombs := bombs + (if tile.marked then -1 else 1)
