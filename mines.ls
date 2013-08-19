@@ -55,11 +55,13 @@ expose = (tile) !->
         for tile in tiles
             if tile.bomb
                 tile.exposed = true
+        return
 
     unexposed := unexposed - 1
     if unexposed == 0
         setTimeout (-> window.alert 'you win!'), 200
         state := 1
+        return
 
     if tile.text
         return
