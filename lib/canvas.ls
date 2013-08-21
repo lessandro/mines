@@ -67,12 +67,14 @@ draw-tile = (tile) !->
 
     ctx.restore!
 
-export draw-grid = (grid_) !->
+export draw-grid = (grid_, updated-only) !->
     grid := grid_
 
-    ctx.clear-rect 0, 0, canvas.width, canvas.height
+    if !updated-only
+        ctx.clear-rect 0, 0, canvas.width, canvas.height
 
-    for tile in grid.tiles
+    for tile in grid.tiles when (tile.updated or !updated-only)
+        tile.updated = false
         draw-tile tile
 
 get-tile-at = (x, y) ->

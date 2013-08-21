@@ -30,6 +30,7 @@ assign-bombs = (tile) !->
     for tile in grid.tiles
         tile.highlighted = false
         tile.exposed = false
+        tile.updated = false
 
         if tile.bomb
             tile.text = 'B'
@@ -47,12 +48,14 @@ move = (tile) !->
     if tile != highlighted
         if highlighted
             highlighted.highlighted = false
+            highlighted.updated = true
 
         if tile
             tile.highlighted = true
+            tile.updated = true
 
         highlighted := tile
-        draw-grid grid
+        draw-grid grid, true
 
 expose = (tile) !->
     if tile.exposed
