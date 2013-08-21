@@ -105,9 +105,9 @@ click = (tile, ev) !->
 update-status = !->
     status = document.get-element-by-id 'status'
     if state == 0
-        status.inner-text = "Bombs left: #bombs-left"
+        status.text-content = "Bombs left: #bombs-left"
     else
-        status.inner-text = "Game over!"
+        status.text-content = "Game over!"
 
 init = ->
     init-canvas 'canvas', w, h, 30, move, click
