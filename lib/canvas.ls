@@ -17,7 +17,8 @@ export init-canvas = (elem, cols, rows, size, move, click) !->
 
     canvas.add-event-listener 'mousemove', (handler move), false
     canvas.add-event-listener 'mouseout', (handler move), false
-    canvas.add-event-listener 'mousedown', (handler click), false
+    canvas.add-event-listener 'click', (handler click), false
+    canvas.add-event-listener 'contextmenu', (handler click), false
 
     tile-size := size
 
