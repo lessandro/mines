@@ -6,6 +6,9 @@
 [w, h] = [0 0]
 edge-map = []
 tiles = []
+
+max-attempts = 10
+max-iterations = 10000
 iterations = 0
 
 make-shapes = ->
@@ -19,7 +22,6 @@ shapes = make-shapes!
 reset-grid = !->
     edge-map := [[[] for i to w - 1] for j to h - 1]
     tiles := []
-    iterations := 10000
 
 next-place = (row, col, edge) ->
     edge = edge .<<. 1
@@ -75,9 +77,9 @@ try-place-tile = (row, col, edge) ->
     if row == h
         return true
 
-    iterations := iterations - 1
-    if iterations == 0
-        throw 'err'
+    iterations := iterations + 1
+    if iterations == max-iterations
+        throw new Error 'maximum iteration count reached'
 
     next = next-place row, col, edge
 
@@ -112,6 +114,33 @@ try-place-tile = (row, col, edge) ->
 
     return false
 
+force-place-tile = (row, col, edge) !->
+    while row < h
+        next = next-place row, col, edge
+
+        if !edge-map[row][col][edge]
+            order = random-order!
+
+            for i in order
+                shape = shapes[i]
+
+                if !has-edge(edge, shape)
+                    continue
+
+                if !shape-fits(row, col, shape)
+                    continue
+
+                tile =
+                    col: col,
+                    row: row,
+                    shape: shape,
+                    n: tiles.length
+
+                tiles.push tile
+                place-tile tile
+
+        [row, col, edge] = next
+
 build-graph = !->
     vertex-map = {}
 
@@ -135,12 +164,17 @@ export make-grid = (w_, h_) !->
     w := w_
     h := h_
 
-    while true 
+    for i to max-attempts
         reset-grid!
         try
+            iterations := 0
             try-place-tile 0, 0, 1
             break
         catch
+
+        if i == max-attempts
+            reset-grid!
+            force-place-tile 0, 0, 1
 
     build-graph!
 
