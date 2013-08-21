@@ -15,9 +15,9 @@ export init-canvas = (elem, cols, rows, size, move, click) !->
     if !ctx
         throw 'could not get canvas 2d context'
 
-    canvas.addEventListener 'mousemove', (handler move), false
-    canvas.addEventListener 'mouseout', (handler move), false
-    canvas.addEventListener 'mousedown', (handler click), false
+    canvas.add-event-listener 'mousemove', (handler move), false
+    canvas.add-event-listener 'mouseout', (handler move), false
+    canvas.add-event-listener 'mousedown', (handler click), false
 
     tile-size := size
 

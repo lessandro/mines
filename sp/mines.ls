@@ -65,7 +65,7 @@ expose = (tile) !->
 
     unexposed := unexposed - 1
     if unexposed == 0
-        setTimeout (-> window.alert 'you win!'), 200
+        setTimeout (-> window.alert 'You win!'), 200
         state := 1
         return
 
