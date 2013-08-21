@@ -90,5 +90,7 @@ get-tile-at = (x, y) ->
     return grid.edge-map[ty][tx][edge]
 
 handler = (f, ev) -->
-    tile = get-tile-at ev.offset-x, ev.offset-y
+    x = ev.page-x - canvas.offset-left
+    y = ev.page-y - canvas.offset-top
+    tile = get-tile-at x, y
     return f tile, ev
