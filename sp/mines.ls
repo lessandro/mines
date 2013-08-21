@@ -1,6 +1,6 @@
 {take, sum, tail, filter} = require 'prelude-ls'
 {shuffle} = require '../lib/util'
-{init-canvas, draw-grid} = require '../lib/canvas'
+{init-canvas, resize-canvas, draw-grid} = require '../lib/canvas'
 {make-grid} = require '../lib/grid'
 
 [w, h] = [0 0]
@@ -117,16 +117,19 @@ update-status = !->
         status.text-content = "Bombs left: #bombs-left"
 
 reset = !->
-    [w_, h_, b_] = tail window.location.hash .split(',')
+    [w_, h_, b_, s_] = tail window.location.hash .split(',')
 
     w := parse-int w_, 10
     h := parse-int h_, 10
     total-bombs := parse-int b_, 10
+    tile-size = parse-int s_ or 30
 
-    init-canvas 'canvas', w, h, 30, move, click
+    resize-canvas w, h, tile-size
     init-mines!
 
 init = !->
+    init-canvas 'canvas', move, click
+
     window.add-event-listener 'hashchange', reset, false
 
     if !window.location.hash

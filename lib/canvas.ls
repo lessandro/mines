@@ -6,7 +6,7 @@ ctx = null
 tile-size = null
 grid = null
 
-export init-canvas = (elem, cols, rows, size, move, click) !->
+export init-canvas = (elem, move, click) !->
     canvas := document.get-element-by-id elem
     if !canvas
         throw 'canvas elem not found'
@@ -20,8 +20,8 @@ export init-canvas = (elem, cols, rows, size, move, click) !->
     canvas.add-event-listener 'click', (handler click), false
     canvas.add-event-listener 'contextmenu', (handler click), false
 
+export resize-canvas = (cols, rows, size) !->
     tile-size := size
-
     canvas.width = cols * tile-size
     canvas.height = rows * tile-size
 
@@ -57,11 +57,13 @@ draw-tile = (tile) !->
     ctx.restore!
 
     if tile.exposed
-        ctx.font = "20px arial"
+        font-size = (tile-size*20/30) .|. 0
+        offset = (tile-size*6/30) .|. 0
+        ctx.font = font-size.to-string! + "px arial"
         width = ctx.measure-text(tile.text).width
         ctx.fill-text tile.text,
             tile.shape.center[0] * tile-size + tile-size/2 - width/2,
-            tile.shape.center[1] * tile-size + tile-size/2 + 6
+            tile.shape.center[1] * tile-size + tile-size/2 + offset
 
     ctx.restore!
 
