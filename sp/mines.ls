@@ -1,23 +1,30 @@
-{take,sum} = require 'prelude-ls'
+{take, sum} = require 'prelude-ls'
+{shuffle} = require '../lib/util'
+{init-canvas, draw-grid} = require '../lib/canvas'
+{make-grid} = require '../lib/grid'
 
+[w, h] = [20 16]
+total-bombs = 35
+
+grid = null
 state = 0
+bombs-left = 0
 unexposed = 0
-bombs = 0
+highlighted = null
 
 init-mines = !->
-    <- make-grid!
-
+    grid := make-grid w, h
     state := 0
-    bombs := 35
-    unexposed := tiles.length - bombs
+    bombs-left := total-bombs
+    unexposed := grid.tiles.length - total-bombs
 
-    pos = [1 to tiles.length-1]
+    pos = [0 to grid.tiles.length-1]
     shuffle pos
-    pos = take bombs, pos
+    pos = take total-bombs, pos
     for n in pos
-        tiles[n].bomb = 1
+        grid.tiles[n].bomb = 1
 
-    for tile in tiles
+    for tile in grid.tiles
         tile.highlighted = false
         tile.exposed = false
 
@@ -29,9 +36,8 @@ init-mines = !->
         tile.num = n
         tile.text = if n > 0 then n.to-string! else ''
 
-    draw-grid!
-
-highlighted = null
+    draw-grid grid
+    update-status!
 
 move = (tile) !->
     if tile != highlighted
@@ -42,7 +48,7 @@ move = (tile) !->
             tile.highlighted = true
 
         highlighted := tile
-        draw-grid!
+        draw-grid grid
 
 expose = (tile) !->
     if tile.exposed
@@ -52,7 +58,7 @@ expose = (tile) !->
 
     if tile.bomb
         state := 1
-        for tile in tiles
+        for tile in grid.tiles
             if tile.bomb
                 tile.exposed = true
         return
@@ -78,7 +84,7 @@ mark = (tile) !->
                     expose neighbor
     else
         tile.marked = if tile.marked then false else true
-        bombs := bombs + (if tile.marked then -1 else 1)
+        bombs-left := bombs-left + (if tile.marked then -1 else 1)
 
 click = (tile, ev) !->
     if state == 0
@@ -91,15 +97,20 @@ click = (tile, ev) !->
             expose tile
 
         highlighted.highlighted = false
-        draw-grid!
+        draw-grid grid
+        update-status!
     else
         init-mines!
 
-    return false
+update-status = !->
+    status = document.get-element-by-id 'status'
+    if state == 0
+        status.inner-text = "Bombs left: #bombs-left"
+    else
+        status.inner-text = "Game over!"
 
 init = ->
-    window.addEventListener 'mousemove', (handler move), false
-    canvas.addEventListener 'mousedown', (handler click), false
-
-    reset-canvas!
+    init-canvas 'canvas', w, h, 30, move, click
     init-mines!
+
+init!

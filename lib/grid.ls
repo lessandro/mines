@@ -1,20 +1,25 @@
-{apply, unique, filter} = require 'prelude-ls'
+{unique, filter} = require 'prelude-ls'
+{shuffle} = require './util'
+{psum} = require './math'
+{edge-list, find-center, square, trapezoids} = require './shape'
 
-[w, h] = [20 16]
+[w, h] = [0 0]
 edge-map = []
 tiles = []
 iterations = 0
 
-reset-grid = ->
+make-shapes = ->
+    shapes = trapezoids ++ [square] * 5
+    for shape in shapes
+        shape.center = find-center shape
+    return shapes
+
+shapes = make-shapes!
+
+reset-grid = !->
     edge-map := [[[] for i to w - 1] for j to h - 1]
     tiles := []
-    graph = []
     iterations := 10000
-
-shuffle = (a) !->
-    for i from a.length - 1 to 1 by -1
-        j = randn (i + 1)
-        [a[j], a[i]] = [a[i], a[j]]
 
 next-place = (row, col, edge) ->
     edge = edge .<<. 1
@@ -45,6 +50,7 @@ shape-fits = (row, col, shape) ->
 
 place-tile = (tile) !->
     [sw, sh] = tile.shape.size
+
     for j to sh - 1
         for i to sw - 1
             for edge in edge-list
@@ -53,11 +59,17 @@ place-tile = (tile) !->
 
 unplace-tile = (tile) !->
     [sw, sh] = tile.shape.size
+
     for j to sh - 1
         for i to sw - 1
             for edge in edge-list
                 if tile.shape.edges[j][i] .&. edge
                     delete edge-map[tile.row + j][tile.col + i][edge]
+
+random-order = ->
+    order = [to shapes.length - 1]
+    shuffle order
+    return order
 
 try-place-tile = (row, col, edge) ->
     if row == h
@@ -70,10 +82,9 @@ try-place-tile = (row, col, edge) ->
     next = next-place row, col, edge
 
     if edge-map[row][col][edge]
-        return apply try-place-tile, next
+        return try-place-tile.apply null, next
 
-    order = [to shapes.length - 1]
-    shuffle order
+    order = random-order!
 
     for i in order
         shape = shapes[i]
@@ -93,7 +104,7 @@ try-place-tile = (row, col, edge) ->
         tiles.push tile
         place-tile tile
 
-        if apply try-place-tile, next
+        if try-place-tile.apply null, next
             return true
 
         unplace-tile tile
@@ -103,6 +114,7 @@ try-place-tile = (row, col, edge) ->
 
 build-graph = !->
     vertex-map = {}
+
     for tile in tiles
         for vertex in tile.shape.contour
             key = (psum vertex, [tile.col, tile.row]).to-string!
@@ -119,13 +131,17 @@ build-graph = !->
         neighbors = filter (!= tile.n), unique neighbors
         tile.neighbors = [tiles[n] for n in neighbors]
 
-make-grid = (cb) !->
-    reset-grid!
-    try
-        try-place-tile 0, 0, 1
-    catch
-        window.set-timeout (-> make-grid cb), 10
-        return
+export make-grid = (w_, h_) !->
+    w := w_
+    h := h_
+
+    while true 
+        reset-grid!
+        try
+            try-place-tile 0, 0, 1
+            break
+        catch
 
     build-graph!
-    cb!
+
+    return {edge-map, tiles, rows:h, cols:w}
