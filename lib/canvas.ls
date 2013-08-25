@@ -51,6 +51,11 @@ draw-tile = (tile) !->
         if tile.bomb
             ctx.fill-style = 'pink'
 
+    if tile.text == 'A'
+        ctx.fill-style = '#D995DB'
+    if tile.text == 'B'
+        ctx.fill-style = '#90AAE8'
+
     draw-contour tile.shape.contour
     ctx.fill!
     ctx.stroke!
