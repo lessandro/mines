@@ -1,5 +1,5 @@
 {unique, filter} = require 'prelude-ls'
-{shuffle} = require './util'
+{shuffle, srand, rand} = require './util'
 {psum} = require './math'
 {edge-list, find-center, square, trapezoids} = require './shape'
 
@@ -7,7 +7,7 @@
 edge-map = []
 tiles = []
 
-max-attempts = 10
+max-attempts = 1000
 max-iterations = 10000
 iterations = 0
 
@@ -160,9 +160,11 @@ build-graph = !->
         neighbors = filter (!= tile.n), unique neighbors
         tile.neighbors = [tiles[n] for n in neighbors]
 
-export make-grid = (w_, h_) !->
+export make-grid = (w_, h_, seed) !->
     w := w_
     h := h_
+    seed = seed or rand!
+    srand seed
 
     for i to max-attempts
         reset-grid!
@@ -178,4 +180,4 @@ export make-grid = (w_, h_) !->
 
     build-graph!
 
-    return {edge-map, tiles, rows:h, cols:w}
+    return {edge-map, tiles, rows:h, cols:w, seed:seed}
