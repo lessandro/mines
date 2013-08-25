@@ -59,7 +59,7 @@ init = !->
     init-canvas 'canvas', move, click
     set-status 'Connecting...'
 
-    sock := new SockJS 'http://localhost:9999/mines'
+    sock := new SockJS 'http://' + window.location.hostname + ':8003/mines'
 
     sock.onopen = !->
         sock.send 'game ' + tail (window.location.hash or "#")

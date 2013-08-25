@@ -79,4 +79,4 @@ sjs-server.on 'connection', (conn) ->
 
 server = http.create-server!
 sjs-server.install-handlers server, {prefix: '/mines'}
-server.listen 9999, '0.0.0.0'
+server.listen 8003, '0.0.0.0'
