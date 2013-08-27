@@ -22,7 +22,7 @@ export class Game
 
     restart: !->
         @grid = make-grid 20, 16
-        @turn = (@restarts++ %% @players.length)
+        @turn = (@restarts++ %% 2)
         @scores = [0, 0]
         @winner = null
         @total-bombs = 51
@@ -42,10 +42,16 @@ export class Game
                 @players[n] = obj
                 return n
 
-        return null
+        @players.push obj
+
+        return @players.length-1
 
     del-player: (player) !->
-        @players[player] = null
+        if player < 2
+            @players[player] = null
+        else
+            @players.splice player, 1
+
         return @num-players! == 0
 
     num-players: ->
@@ -98,7 +104,7 @@ export class Game
             return false
 
         if @expose tile
-            @turn = (@turn + 1) %% @players.length
+            @turn = (@turn + 1) %% 2
 
         return true
 

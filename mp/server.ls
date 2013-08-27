@@ -41,9 +41,6 @@ sjs-server.on 'connection', (conn) ->
                 console.log 'creating game', game.name
 
             n := game.add-player conn
-            if n == null
-                err 'This game is full!'
-                return
 
             conn.num = n
             conn.write 'player ' + n
@@ -62,9 +59,11 @@ sjs-server.on 'connection', (conn) ->
                 err 'Not in a game!'
                 return
 
-            tile-num = parse-int data, 10
-            if game.click-tile conn.num, tile-num
-                broadcast-state game
+            try
+                tile-num = parse-int data, 10
+                if game.click-tile conn.num, tile-num
+                    broadcast-state game
+            catch
 
     conn.on 'close', !->
         console.log 'close'

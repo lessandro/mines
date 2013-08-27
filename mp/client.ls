@@ -36,20 +36,33 @@ set-status = (text) !->
     status.text-content = text
 
 update-status = !->
-    if turn == null
-        set-status "Waiting for your opponent to connect. Send him the link!"
-        return
+    if player < 2
+        if turn == null
+            set-status "Waiting for your opponent to connect. Send him the link!"
+            return
 
-    if turn == player
-        set-status "Your turn!"
+        if turn == player
+            set-status "Your turn!"
+        else
+            set-status "Opponent's turn..."
     else
-        set-status "Opponent's turn..."
+        if turn == null
+            set-status "One of the players left the game!"
+            return
+
+        if turn == 0
+            set-status "A is playing!"
+        else
+            set-status "B is playing!"
 
 update-score = (state) !->
-    txt = "Your score: " + state.scores[player]
-    txt += "<br>"
-    txt += "Opponent's score: " + state.scores[1 - player]
-    txt += "<br>"
+    if player < 2
+        txt = "Your score (#{"AB"[player]}): #{state.scores[player]}<br>"
+        txt += "Opponent's score (#{"AB"[1 - player]}): #{state.scores[1 - player]}<br>"
+    else
+        txt = "A's score: #{state.scores[0]}<br>"
+        txt += "B's score: #{state.scores[1]}<br>"
+
     txt += "Score to win: " + (Math.floor(state.bombs / 2) + 1)
 
     score = document.get-element-by-id 'score'
@@ -65,8 +78,6 @@ init = !->
         sock.send 'game ' + tail (window.location.hash or "#")
 
     sock.onmessage = (ev) !->
-        console.log ev.data
-
         [cmd, data] = span (!= ' '), ev.data
         data = data.trim!
 
@@ -88,7 +99,7 @@ init = !->
 
             turn := state.turn
 
-            if !state.players[1 - player]
+            if !state.players[0] or !state.players[1]
                 turn := null
 
             for tile in grid.tiles
