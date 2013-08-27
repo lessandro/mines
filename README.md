@@ -1,3 +1,5 @@
 Minesweeper in HTML5/Canvas/Livescript
 
-http://lessandro.com/mines/
+Singleplayer: http://lessandro.com/mines/
+
+Multiplayer: http://lessandro.com/mines/mp/
