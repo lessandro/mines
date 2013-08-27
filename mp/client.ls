@@ -78,6 +78,8 @@ init = !->
         sock.send 'game ' + tail (window.location.hash or "#")
 
     sock.onmessage = (ev) !->
+        console.log ev.data
+
         [cmd, data] = span (!= ' '), ev.data
         data = data.trim!
 
@@ -111,13 +113,16 @@ init = !->
             update-score state
 
             if state.winner != null
-                if state.winner == player
-                    alert "You won!"
+                if player < 2
+                    if state.winner == player
+                        alert "You won!"
+                    else
+                        alert "You lost!"
+                    sock.send 'restart'
                 else
-                    alert "You lost!"
+                    alert "#{'AB'[state.winner]} won!"
 
-                sock.send 'restart'
-                set-status 'Waiting for your opponent...'
+                set-status 'Waiting for a new game...'
 
     sock.onclose = !->
         resize-canvas 0, 0, 30
