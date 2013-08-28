@@ -6,7 +6,7 @@
 [NW, SW, SE, NE, C] = [[0 0] [0 1] [1 1] [1 0] [0.5 0.5]]
 export edge-list = [N, W, S, E] = [1 2 4 8]
 
-rotate-edge = (edge) ->
+export rotate-edge = (edge) ->
     ((edge .<<. 1) .|. (edge .>>. 3)) .&. 0xf
 
 export rotate-shape = (shape) ->
