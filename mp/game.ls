@@ -1,7 +1,7 @@
 {take, sum, tail, filter, map, all} = require 'prelude-ls'
 {srand, rand, shuffle} = require '../lib/util'
 {make-grid} = require '../lib/grid'
-{place-bombs} = require '../lib/mines'
+{place-bombs, expose-tile} = require '../lib/mines'
 
 export class Game
     restart: !->
@@ -61,9 +61,8 @@ export class Game
         if tile.exposed
             return false
 
-        tile.exposed = true
-
         if tile.bomb
+            tile.exposed = true
             tile.text = "AB"[@turn]
             @scores[@turn] += 1
             if @scores[@turn] > @total-bombs / 2
@@ -73,9 +72,7 @@ export class Game
 
             return false
 
-        if tile.text == ''
-            for neighbor in tile.neighbors
-                @expose neighbor
+        expose-tile tile
 
         return true
 

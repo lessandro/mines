@@ -1,7 +1,7 @@
 {take, sum, tail, filter} = require 'prelude-ls'
 {init-canvas, resize-canvas, draw-grid} = require '../lib/canvas'
 {make-grid} = require '../lib/grid'
-{place-bombs} = require '../lib/mines'
+{place-bombs, expose-tile} = require '../lib/mines'
 
 [w, h] = [0 0]
 total-bombs = 0
@@ -43,8 +43,6 @@ expose = (tile) !->
     if tile.exposed
         return
 
-    tile.exposed = true
-
     if tile.bomb
         state := 1
         for tile in grid.tiles
@@ -52,17 +50,13 @@ expose = (tile) !->
                 tile.exposed = true
         return
 
-    unexposed := unexposed - 1
+    num = expose-tile tile
+
+    unexposed := unexposed - num
     if unexposed == 0
         setTimeout (-> window.alert 'You win!'), 200
         state := 1
         return
-
-    if tile.text
-        return
-
-    for neighbor in tile.neighbors
-        expose neighbor
 
 mark = (tile) !->
     if tile.exposed
