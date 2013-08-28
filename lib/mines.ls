@@ -3,7 +3,7 @@
 
 bomb-symbol = (->
     # nodejs
-    if typeof module !== 'undefined'
+    if process.title != 'browser'
         return "@"
 
     # browser
