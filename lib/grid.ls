@@ -1,4 +1,4 @@
-{unique, filter} = require 'prelude-ls'
+{unique} = require 'prelude-ls'
 {shuffle, srand, rand} = require './util'
 {psum} = require './math'
 {rotate-edge, edge-list, find-center, square, trapezoids} = require './shape'
@@ -64,17 +64,15 @@ unplace-tile = (tile) !->
                 if tile.shape.edges[j][i] .&. edge
                     delete edge-map[tile.row + j][tile.col + i][edge]
 
-random-order = ->
+gen-grid = !->
+    [row, col, edge] = [0, 0, 1]
     order = [to shapes.length - 1]
-    shuffle order
-    return order
 
-force-place-tile = (row, col, edge) !->
     while row < h
         next = next-place row, col, edge
 
         if !edge-map[row][col][edge]
-            order = random-order!
+            shuffle order
             found = false
 
             tiles.push (tile = {col, row, n: tiles.length})
@@ -115,7 +113,7 @@ build-graph = !->
 
     for tile in tiles
         for vertex in tile.shape.contour
-            key = (psum vertex, [tile.col, tile.row]).to-string!
+            key = "#{vertex[0] + tile.col},#{vertex[1] + tile.row}"
             if !vertex-map[key]
                 vertex-map[key] = []
             vertex-map[key].push tile.n
@@ -123,21 +121,21 @@ build-graph = !->
     for tile in tiles
         neighbors = []
         for vertex in tile.shape.contour
-            key = (psum vertex, [tile.col, tile.row]).to-string!
-            neighbors ++= vertex-map[key]
-
-        neighbors = filter (!= tile.n), unique neighbors
-        tile.neighbors = [tiles[n] for n in neighbors]
+            key = "#{vertex[0] + tile.col},#{vertex[1] + tile.row}"
+            for n in vertex-map[key]
+                neighbors.push n
+        neighbors = unique neighbors
+        tile.neighbors = [tiles[n] for n in neighbors when n != tile.n]
 
 export make-grid = (w_, h_, seed) !->
     w := w_
     h := h_
+
     seed = seed or rand!
     srand seed
 
     reset-grid!
-    force-place-tile 0, 0, 1
-
+    gen-grid!
     build-graph!
 
     return {edge-map, tiles, rows:h, cols:w, seed:seed}
