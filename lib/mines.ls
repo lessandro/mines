@@ -7,10 +7,10 @@ bomb-symbol = (->
         return "@"
 
     # browser
-    mac = window.navigator.app-version.index-of "Mac" != -1
+    mac = window.navigator.app-version.index-of("Mac") != -1
     chrome = !!window.chrome
 
-    if mac and chrome then "@" else "\uD83D\uDCA3"
+    if mac and !chrome then "\uD83D\uDCA3" else "@"
 )!
 
 export place-bombs = (grid, total-bombs, except) !->
