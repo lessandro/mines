@@ -1,7 +1,7 @@
 {take, sum, tail, filter} = require 'prelude-ls'
-{shuffle} = require '../lib/util'
 {init-canvas, resize-canvas, draw-grid} = require '../lib/canvas'
 {make-grid} = require '../lib/grid'
+{place-bombs} = require '../lib/mines'
 
 [w, h] = [0 0]
 total-bombs = 0
@@ -21,25 +21,7 @@ init-mines = !->
     update-status!
 
 assign-bombs = (tile) !->
-    pos = filter (!= tile.n), [0 to grid.tiles.length-1]
-    shuffle pos
-    pos = take total-bombs, pos
-    for n in pos
-        grid.tiles[n].bomb = 1
-
-    for tile in grid.tiles
-        tile.highlighted = false
-        tile.exposed = false
-        tile.updated = false
-
-        if tile.bomb
-            tile.text = '*'
-            continue
-
-        n = [1 for neighbor in tile.neighbors when neighbor.bomb].length
-        tile.num = n
-        tile.text = if n > 0 then n.to-string! else ''
-
+    place-bombs grid, total-bombs, tile.n
     state := 0
     draw-grid grid
     update-status!

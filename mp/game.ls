@@ -1,25 +1,9 @@
 {take, sum, tail, filter, map, all} = require 'prelude-ls'
 {srand, rand, shuffle} = require '../lib/util'
 {make-grid} = require '../lib/grid'
+{place-bombs} = require '../lib/mines'
 
 export class Game
-    assign-bombs: !->
-        pos = [0 to @grid.tiles.length-1]
-        shuffle pos
-        pos = take @total-bombs, pos
-        for n in pos
-            @grid.tiles[n].bomb = 1
-
-        for tile in @grid.tiles
-            tile.exposed = false
-
-            if tile.bomb
-                tile.text = '*'
-                continue
-
-            n = [1 for neighbor in tile.neighbors when neighbor.bomb].length
-            tile.text = if n == 0 then '' else n.to-string!
-
     restart: !->
         @grid = make-grid 20, 16
         @turn = (@restarts++ %% 2)
@@ -28,7 +12,7 @@ export class Game
         @total-bombs = 51
 
         srand!
-        @assign-bombs!
+        place-bombs @grid, @total-bombs
 
     (name) ->
         @name = name or rand! .to-string 36
