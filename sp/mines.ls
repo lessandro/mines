@@ -33,7 +33,7 @@ assign-bombs = (tile) !->
         tile.updated = false
 
         if tile.bomb
-            tile.text = 'B'
+            tile.text = '*'
             continue
 
         n = [1 for neighbor in tile.neighbors when neighbor.bomb].length
