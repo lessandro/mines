@@ -1,17 +1,15 @@
 {filter, take} = require 'prelude-ls'
 {shuffle} = require '../lib/util'
 
-bomb-symbol = (->
+bomb-symbol = let
     # nodejs
-    if process.title != 'browser'
-        return "@"
+    return "@" if process.title != 'browser'
 
     # browser
     mac = window.navigator.app-version.index-of("Mac") != -1
     chrome = !!window.chrome
 
     if mac and !chrome then "\uD83D\uDCA3" else "@"
-)!
 
 export place-bombs = (grid, total-bombs, except) !->
     pos = filter (!= except), [0 to grid.tiles.length-1]
@@ -41,8 +39,7 @@ export expose-tile = (tile) !->
     while pos < queue.length
         tile = queue[pos++]
 
-        if tile.exposed
-            continue
+        continue if tile.exposed
 
         total++
         tile.exposed = true
